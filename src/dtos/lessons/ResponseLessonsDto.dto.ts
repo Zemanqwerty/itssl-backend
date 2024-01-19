@@ -1,11 +1,9 @@
 export class ResponseLessonsDto {
     title: string;
-    date: Date;
-    time: Date;
+    dateTime: Date;
 
-    constructor (model: {title: string, date: Date, time: Date}) {
+    constructor (model: {title: string, dateTime: Date}) {
         this.title = model.title;
-        this.date = model.date;
-        this.time = model.time;
+        this.dateTime = model.dateTime
     }
 }

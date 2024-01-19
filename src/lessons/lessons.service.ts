@@ -22,12 +22,16 @@ export class LessonsService {
         const lesson = this.lessonsRepository.create(lessonData);
         await this.lessonsRepository.save(lesson);
 
-        return new ResponseLessonsDto({title: lesson.title, date: lesson.date, time: lesson.time});
+        return new ResponseLessonsDto({title: lesson.title, dateTime: lesson.dateTime});
     }
 
     async getLessons() {
         const lessonsList = await this.lessonsRepository.find()
         
         return lessonsList;
+    }
+
+    async getLessonById(lessonId: number) {
+        return await this.lessonsRepository.findOneBy({id: lessonId});
     }
 }

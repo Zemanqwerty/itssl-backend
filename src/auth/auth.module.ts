@@ -4,10 +4,11 @@ import { AuthService } from './auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
     imports: [
-        UsersService,
+        UsersModule,
         ConfigModule.forRoot({
             envFilePath: '.env',
             isGlobal: true,

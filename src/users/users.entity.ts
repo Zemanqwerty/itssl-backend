@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, Generated, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Lessons } from 'src/lessons/lessons.entity';
+import { Records } from 'src/records/records.entity';
+import { ManyToMany, JoinTable, Entity, Column, PrimaryGeneratedColumn, Generated, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Users {
@@ -20,8 +22,8 @@ export class Users {
   @Column()
   contractNumber: string;
 
-  @Column()
-  conclusionDate: Date;
+  @Column({type: 'date'})
+  conclusionDate: string;
 
   @Column()
   phoneNumber: string;
@@ -36,4 +38,7 @@ export class Users {
 
   @Column()
   course: string;
+
+  @OneToMany(() => Records, (record) => record.user)
+  records: Records[]
 }

@@ -3,7 +3,7 @@ export class CreateUserDto {
     parrentFIO: string;
     age: number;
     contractNumber: string;
-    conclusionDate: Date;
+    conclusionDate: string;
     phoneNumber: string;
     email: string;
     password: string;
