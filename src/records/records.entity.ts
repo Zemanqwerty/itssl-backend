@@ -7,6 +7,9 @@ export class Records {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({default: true})
+  isActive: boolean
+
   @ManyToOne(() => Users, (user) => user.records)
   user: Users;
 

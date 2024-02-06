@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { compare } from 'bcryptjs';
 import { Repository } from "typeorm";
 import { CreateUserDto } from "src/dtos/users/CreateUser.dto";
 import { ResponseUser } from "src/dtos/users/ResponseUser.dto";
@@ -9,8 +8,7 @@ import { UsersService } from "src/users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import { ResponseAuthDto } from "src/dtos/auth/ResponseAuthDto.dto";
 import { PayloadDto } from "src/dtos/auth/PayloadDto.dto";
-
-
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +24,9 @@ export class AuthService {
             throw new HttpException('Пользователь с такой почтой не найден', HttpStatus.BAD_REQUEST);
         }
 
-        if (!compare(user.password, userData.password)) {
+        const passwordsEqual = await bcrypt.compare(userData.password, user.password)
+
+        if (!passwordsEqual) {
             throw new HttpException(`Неправильный пароль`, HttpStatus.BAD_REQUEST)
         }
 

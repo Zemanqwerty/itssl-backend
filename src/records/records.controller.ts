@@ -20,16 +20,16 @@ export class RecordsController {
 
     @UseGuards(AuthGuard)
     @Get('all')
-    async getAllLessons() {
+    async getAllLessons(@Req() request: Request) {
         try {
-            return await this.recordsService.getAllRecords();
+            return await this.recordsService.getAllRecords(request['user']);
         } catch (e) {
             return e
         }
     }
 
     @UseGuards(AuthGuard)
-    @Get()
+    @Get('myrecords')
     async getRecordsById(@Req() request: Request) {
         try {
             return await this.recordsService.getRecordsByUserId(request['user'])

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { hash, compare } from 'bcryptjs';
 import { Repository } from "typeorm";
 import { CreateUserDto } from "src/dtos/users/CreateUser.dto";
@@ -13,6 +13,8 @@ import { PayloadDto } from "src/dtos/auth/PayloadDto.dto";
 import { UsersService } from "src/users/users.service";
 import { Lessons } from "src/lessons/lessons.entity";
 import { Records } from "./records.entity";
+import { Role } from "src/roles/roles.enum";
+import { RecordsResponseDto } from "src/dtos/records/RecordsResponseDto.dto";
 
 
 
@@ -32,7 +34,7 @@ export class RecordsService {
         const record = this.recordsRepository.create({user: user, lesson: lesson});
         await this.recordsRepository.save(record);
 
-        return record;
+        return new RecordsResponseDto({id: record.id, isActive: record.isActive, user: {id: record.user.id}, lesson: {id: record.id}})
     }
 
     async getRecordsByUserId(userData: PayloadDto) {
@@ -46,15 +48,25 @@ export class RecordsService {
             lesson: true
         }});
 
-        return records
+        return records.map((record) => {
+            return new RecordsResponseDto({id: record.id, isActive: record.isActive, user: {id: record.user.id}, lesson: {id: record.id}})
+        });
     }
 
-    async getAllRecords() {
-        const recods = await this.recordsRepository.find({relations: {
+    async getAllRecords(userData: PayloadDto) {
+        const user = await this.usersService.getUserById(userData.public_userId);
+
+        if (user.role === Role.Client) {
+            throw new HttpException('permission denied', HttpStatus.FORBIDDEN);
+        }
+
+        const records = await this.recordsRepository.find({relations: {
             user: true,
             lesson: true
         }});
         
-        return recods;
+        return records.map((record) => {
+            return new RecordsResponseDto({id: record.id, isActive: record.isActive, user: {id: record.user.id}, lesson: {id: record.id}})
+        });
     }
 }

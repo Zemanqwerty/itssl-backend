@@ -4,6 +4,7 @@ import { JoinTable, ManyToMany, Entity, Column, PrimaryGeneratedColumn, Generate
 
 @Entity()
 export class Lessons {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,8 +17,8 @@ export class Lessons {
   @Column()
   isOnline: boolean;
 
-  @Column({type: "timestamp"})
-  dateTime: Date;
+  @Column({type: "timestamp with time zone"})
+  dateTime: Date | string;
 
   @OneToMany(() => Records, (record) => record.user)
   records: Records[]

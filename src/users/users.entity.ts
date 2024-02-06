@@ -1,5 +1,6 @@
 import { Lessons } from 'src/lessons/lessons.entity';
 import { Records } from 'src/records/records.entity';
+import { Role } from 'src/roles/roles.enum';
 import { ManyToMany, JoinTable, Entity, Column, PrimaryGeneratedColumn, Generated, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
@@ -38,6 +39,11 @@ export class Users {
 
   @Column()
   course: string;
+
+  @Column({
+    default: Role.Client
+  })
+  role: Role;
 
   @OneToMany(() => Records, (record) => record.user)
   records: Records[]

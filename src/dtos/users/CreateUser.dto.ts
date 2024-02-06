@@ -1,6 +1,6 @@
 export class CreateUserDto {
     childrenFIO: string;
-    parrentFIO: string;
+    parrentFIO?: string | null;
     age: number;
     contractNumber: string;
     conclusionDate: string;
