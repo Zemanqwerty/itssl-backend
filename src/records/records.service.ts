@@ -28,8 +28,51 @@ export class RecordsService {
     ) {};
 
     async createRecord(recordData: CreateRecordDto, userData: Payload) {
+        function areDatesInSameWeek(date1: Date, date2: Date) {
+            const oneDay = 24 * 60 * 60 * 1000; // количество миллисекунд в одном дне
+          
+            // Округляем даты до начала недели
+            const startOfWeek1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate() - date1.getDay());
+            const startOfWeek2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate() - date2.getDay());
+          
+            // Сравниваем округленные даты
+            return Math.floor(startOfWeek1.getTime() / oneDay) === Math.floor(startOfWeek2.getTime() / oneDay);
+        }
+
+        function canAddDateToList(dateList: Date[], newDate: Date) {
+            // Определяем, сколько дат уже в списке относятся к той же неделе, что и новая дата
+            const sameWeekCount = dateList.filter(date => areDatesInSameWeek(date, newDate)).length;
+          
+            // Если меньше двух дат в этой неделе, то новую дату можно добавить
+            return sameWeekCount < 2;
+        }
+
+        // const dateList = [new Date('2022-01-01'), new Date('2022-01-02'), new Date('2022-01-08')];
+        // const newDate = new Date('2022-01-03');
+
+        // console.log(canAddDateToList(dateList, newDate)); // true
+
         const lesson = await this.lessonsService.getLessonById(recordData.lessonId);
         const user = await this.usersService.getUserByEmail(userData.publickUserEmail)
+
+        const usersRecords = await this.recordsRepository.find({
+            where: {
+                user: {
+                    id: user.id
+                },
+                isActive: true,
+            },
+            relations: {
+                user: true,
+                lesson: true,
+            }
+        })
+
+        const dateTimes = usersRecords.map(record => new Date(record.lesson.dateTime));
+
+        if (!canAddDateToList(dateTimes, new Date(lesson.dateTime))) {
+            throw new HttpException('Вы не можете записаться более чем на два занятия в неделю. Вы можете отменить другое занятие либо связаться с менеджером для оформления дополнительного занятия (Дополнительное занятие будет стоить 500 рублей)', HttpStatus.BAD_REQUEST);
+        }
 
         const record = this.recordsRepository.create({user: user, lesson: lesson});
         await this.recordsRepository.save(record);
