@@ -67,25 +67,23 @@ export class LessonsService {
 
         const groupedLessons = nextLessons.reduce((acc, lesson) => {
             if (lesson.dateTime instanceof Date) {
-                // const date = lesson.dateTime.toISOString().split('T')[0];
+                const date = lesson.dateTime.toISOString().split('T')[0];
                 // const date = lesson.dateTime.toLocaleTimeString('ru-RU', {hour12: false, timeZone: 'UTC'});
-                const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-                const date = lesson.dateTime.toLocaleDateString('ru-RU', options);
                 
-            if (!acc[date]) {
-                acc[date] = [];
-            }
-            console.log(lesson.dateTime);
-            // lesson.dateTime = `${lesson.dateTime.getHours()}:${lesson.dateTime.getMinutes()}`;
-            lesson.dateTime = lesson.dateTime.toLocaleTimeString('ru-RU', {hour12: false, timeZone: 'UTC'}).slice(0, 5);
-            console.log(lesson.dateTime);
-            acc[date].push(lesson);
-            return acc;
+                if (!acc[date]) {
+                    acc[date] = [];
+                }
+                console.log(lesson.dateTime);
+                // lesson.dateTime = `${lesson.dateTime.getHours()}:${lesson.dateTime.getMinutes()}`;
+                lesson.dateTime = lesson.dateTime.toLocaleTimeString('ru-RU', {hour12: false, timeZone: 'UTC'}).slice(0, 5);
+                console.log(lesson.dateTime);
+                acc[date].push(lesson);
+                return acc;
             }
         }, {});
           
         const response = Object.entries(groupedLessons).map(([date, lessonsOnDate]) => ({
-          onDate: date,
+          onDate: new Date(date),
           lessonsOnDate,
         }));
 

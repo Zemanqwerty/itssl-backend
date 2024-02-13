@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { RecordsModule } from './records/records.module';
 import { RolesModule } from './roles/roles.module';
+import { TokensModule } from './tokens/tokens.module';
 
 @Module({
   imports: [
@@ -33,6 +34,8 @@ import { RolesModule } from './roles/roles.module';
     RecordsModule,
 
     RolesModule,
+
+    TokensModule,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "src/dtos/users/CreateUser.dto";
@@ -9,15 +9,18 @@ import { JwtService } from "@nestjs/jwt";
 import { ResponseAuthDto } from "src/dtos/auth/ResponseAuthDto.dto";
 import { PayloadDto } from "src/dtos/auth/PayloadDto.dto";
 import * as bcrypt from 'bcrypt';
+import { TokensService } from "src/tokens/tokens.service";
+import { Response } from "express";
 
 @Injectable()
 export class AuthService {
     constructor(
         private jwtService: JwtService,
-        private usersService: UsersService
+        private usersService: UsersService,
+        private tokensService: TokensService,
     ) {};
 
-    async login(userData: LoginUserDto) {
+    async login(userData: LoginUserDto, response: Response) {
         const user = await this.usersService.getUserByEmail(userData.email);
 
         if (!user) {
@@ -30,13 +33,51 @@ export class AuthService {
             throw new HttpException(`Неправильный пароль`, HttpStatus.BAD_REQUEST)
         }
 
+        const accessToken = await this.jwtService.signAsync({publickUserEmail: user.email, publickUserRoles: user.role}, {secret: process.env.JWT_ACCESS_SECRET_KEY, expiresIn: '20m'});
+        const refreshToken = await this.jwtService.signAsync({publickUserEmail: user.email, publickUserRoles: user.role}, {secret: process.env.JWT_REFRESH_SECRET_KEY, expiresIn: '30d'});
 
-        const payload = new PayloadDto({public_userId: user.id, public_userEmail: user.email});
-        console.log(payload);
+        const savedRefreshToken = await this.tokensService.saveToken(refreshToken, user);
+        
+        console.log(`THIS REFRESHTOKEN SETTED AFTER LOGIN - ${refreshToken}`);
 
-        const accessToken = await this.jwtService.signAsync({public_userId: payload.public_userId,
-                                                             public_userEmail: payload.public_userEmail});
-        console.log('12234');
+        response.cookie('refreshToken', refreshToken, {
+            // domain: 'localhost',
+            httpOnly: true,
+            // sameSite: 'none',
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+        });
         return new ResponseAuthDto({userEmail: user.email, accessToken: accessToken});
+    }
+
+    async refresh(refsreshToken: string | undefined, response: Response) {
+        const payload = await this.tokensService.verifyRefreshToken(refsreshToken);
+
+        const user = await this.usersService.getUserByEmail(payload.publickUserEmail)
+
+        const newAccessToken = await this.jwtService.signAsync({publickUserEmail: user.email, publickUserRoles: user.role}, {secret: process.env.JWT_ACCESS_SECRET_KEY, expiresIn: '20m'});
+        const NewRefreshToken = await this.jwtService.signAsync({publickUserEmail: user.email, publickUserRoles: user.role}, {secret: process.env.JWT_REFRESH_SECRET_KEY, expiresIn: '30d'});
+        
+        const savedRefreshToken = await this.tokensService.saveToken(NewRefreshToken, user);
+
+        response.cookie('refreshToken', NewRefreshToken, {
+            // domain: 'localhost',
+            httpOnly: true,
+            // sameSite: 'none',
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+        });
+        
+        return new ResponseAuthDto({userEmail: user.email, accessToken: newAccessToken});
+    }
+
+    async logout(refreshToken: string | undefined) {
+        if (!refreshToken) {
+            throw new UnauthorizedException();
+        }
+
+        const removedToken = await this.tokensService.removeToken(refreshToken);
+
+        return removedToken.user;
     }
 }
