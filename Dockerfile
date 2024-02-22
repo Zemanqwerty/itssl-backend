@@ -1,8 +1,8 @@
-FROM --platform=linux/amd64 node:18
+FROM --platform=linux/amd64 node:19.5.0-alpine
 WORKDIR /usr/app
 COPY package.json .
-RUN npm install
-RUN rm -r node_modules
-RUN npm i --save
-EXPOSE 3001:3000
+RUN npm i --force
+EXPOSE 5010:5010
 COPY . .
+
+CMD [ "npm", "start" ]

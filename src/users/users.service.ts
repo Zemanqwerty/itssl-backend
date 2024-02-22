@@ -8,6 +8,7 @@ import { LoginUserDto } from "src/dtos/users/LoginUserDto.dto";
 import * as bcrypt from 'bcrypt';
 import { Role } from "src/roles/roles.enum";
 import { PayloadDto } from "src/dtos/auth/PayloadDto.dto";
+import { ResponseClients } from "src/dtos/users/ResponseClient.dto";
 
 
 
@@ -19,6 +20,7 @@ export class UsersService {
     ) {};
 
     async createNewUser(userData: CreateUserDto, customerData: PayloadDto) {
+        console.log(userData);
         const customer = await this.getUserById(customerData.public_userId);
 
         if (customer.role === Role.Client) {
@@ -37,6 +39,55 @@ export class UsersService {
         await this.usersRepository.save(newUser);
 
         return new ResponseUser({childrenFIO: newUser.childrenFIO, email: newUser.email});
+    }
+
+    async changeUserData(id: number, userData: CreateUserDto, customerData: PayloadDto) {
+        const customer = await this.getUserById(customerData.public_userId);
+
+        if (customer.role === Role.Client) {
+            throw new HttpException('permission denied', HttpStatus.FORBIDDEN);
+        }
+
+        const user = await this.usersRepository.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        // userData.password = await hash(userData.password, 3);
+        userData.password = await bcrypt.hash(userData.password, 10);
+
+        user.childrenFIO = userData.childrenFIO;
+        user.parrentFIO = userData.parrentFIO;
+        user.age = userData.age;
+        user.contractNumber = userData.contractNumber;
+        user.conclusionDate = userData.conclusionDate;
+        user.phoneNumber = userData.phoneNumber;
+        user.email = userData.email;
+        user.password = userData.password;
+        user.course = userData.course;
+
+        await this.usersRepository.save(user);
+
+        return new ResponseUser({childrenFIO: user.childrenFIO, email: user.email});
+    }
+
+    async getAllUsers(userData: PayloadDto) {
+        const user = await this.getUserById(userData.public_userId);
+
+        if (user.role === Role.Client) {
+            throw new HttpException('permission denied', HttpStatus.FORBIDDEN);
+        }
+
+        const clientsList = await this.usersRepository.find({
+            where: {
+                role: Role.Client
+            }
+        });
+
+        return clientsList.map((client) => {
+            return new ResponseClients(client);
+        })
     }
 
     async getUserByEmail(email: string) {

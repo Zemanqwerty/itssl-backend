@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { LessonsService } from "./lessons.service";
 import { CreateLessonDto } from "src/dtos/lessons/CreateLessonDto.dto";
 import { AuthGuard } from "src/auth/auth.middleware";
@@ -37,6 +37,18 @@ export class LessonsController {
         } catch (e) {
             console.log(e);
             return e;
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete(':id')
+    async deleteOrderForAdmin(@Param() params: any, @Req() request: Request) {
+        try {
+            console.log('try to delete lesson');
+            return await this.lessonsService.deleteLessonById(params.id, request['user']);
+        } catch (e) {
+            console.log(e);
+            return e
         }
     }
 }

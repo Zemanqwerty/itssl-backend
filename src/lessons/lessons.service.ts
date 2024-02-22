@@ -14,6 +14,7 @@ import { UsersService } from "src/users/users.service";
 import { Role } from "src/roles/roles.enum";
 import { AllNextLessonsDto } from "src/dtos/lessons/AllNextLessonsDto.dto";
 import { LessonsDto } from "src/dtos/lessons/LessonsDto.dto";
+import { Payload } from "src/auth/Payload.dto";
 
 
 
@@ -26,9 +27,7 @@ export class LessonsService {
     ) {};
 
     async createLesson(lessonData: CreateLessonDto, userData: PayloadDto) {
-        console.log('---');
-        console.log(userData);
-        console.log('---');
+        console.log(lessonData)
         const customer = await this.usersService.getUserById(userData.public_userId);
 
         if (customer.role === Role.Client) {
@@ -87,10 +86,28 @@ export class LessonsService {
           lessonsOnDate,
         }));
 
+        console.log(response);
         return response;
     }
 
     async getLessonById(lessonId: number) {
         return await this.lessonsRepository.findOneBy({id: lessonId});
+    }
+
+    async deleteLessonById(id: number, userData: Payload) {
+        console.log(id);
+        const user = await this.usersService.getUserByEmail(userData.publickUserEmail);
+
+        if (user.role === Role.Client) {
+            throw new HttpException('permission denied', HttpStatus.FORBIDDEN);
+        }
+
+        const lesson = await this.lessonsRepository.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        return await this.lessonsRepository.remove(lesson);
     }
 }

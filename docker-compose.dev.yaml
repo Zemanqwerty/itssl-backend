@@ -1,6 +1,24 @@
 version: '3.1'
 
 services:
+  main-service:
+    image: zemanqwerty/itssl:main-service
+    ports:
+      - 5010:5010
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: root
+      DB_PASSWORD: itsslmaindb
+      DB_NAME: itssl-db
+      JWT_ACCESS_SECRET_KEY: secretaccesskeyforitssl
+      JWT_REFRESH_SECRET_KEY: secretrefreshkeyforitssl
+      BASE_ADMIN_EMAIL: admin@gmail.com
+      BASE_ADMIN_PASSWORD: qgDcsQhsLa
+    restart: unless-stopped
+    depends_on:
+      - smtp-service
+
   db:
     image:  postgres:11
     ports:
@@ -10,7 +28,7 @@ services:
     command: postgres -c stats_temp_directory=/tmp
     environment:
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: itsslmaindb
       POSTGRES_DB: itssl-db
     healthcheck:
       test: "pg_isready -h db"
@@ -25,7 +43,7 @@ services:
       - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: zeman@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: admin123456
 
 volumes:
   data:

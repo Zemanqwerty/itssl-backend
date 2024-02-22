@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
 import { CreateLessonDto } from "src/dtos/lessons/CreateLessonDto.dto";
 import { AuthGuard } from "src/auth/auth.middleware";
 import { RecordsService } from "./records.service";
 import { CreateRecordDto } from "src/dtos/records/CreateRecordDto.dto";
 import { Request } from "express";
+import { CreateRecordByUser } from "src/dtos/records/CreateRecordByUser.dto";
 
 @Controller('records')
 export class RecordsController {
@@ -11,10 +12,21 @@ export class RecordsController {
 
     @UseGuards(AuthGuard)
     @Post('create')
-    async createNewUser(@Req() request: Request, @Body() recordData: CreateRecordDto) {
+    async createNewRecord(@Req() request: Request, @Body() recordData: CreateRecordDto) {
         try {
             return await this.recordsService.createRecord(recordData, request['user']);
         } catch (e) {
+            return e
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('createbyuser')
+    async createNewRecordByUser(@Req() request: Request, @Body() recordData: CreateRecordByUser) {
+        try {
+            return await this.recordsService.createRecordByUser(request['user'], recordData);
+        } catch (e) {
+            console.log(e);
             return e
         }
     }
@@ -47,6 +59,16 @@ export class RecordsController {
     async cancleRecordByLessonId(@Param() params: any, @Req() request: Request) {
         try {
             return await this.recordsService.cancleRecordByLessonId(params.id, request['user']);
+        } catch (e) {
+            return e
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete(':id')
+    async deleteOrderForAdmin(@Param() params: any, @Req() request: Request) {
+        try {
+            return await this.recordsService.deleteRecordForAdmin(params.id, request['user']);
         } catch (e) {
             return e
         }

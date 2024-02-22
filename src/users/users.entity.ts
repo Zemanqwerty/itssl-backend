@@ -45,6 +45,6 @@ export class Users {
   })
   role: Role;
 
-  @OneToMany(() => Records, (record) => record.user)
+  @OneToMany(() => Records, (record) => record.user, {cascade: true})
   records: Records[]
 }

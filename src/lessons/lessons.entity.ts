@@ -20,6 +20,6 @@ export class Lessons {
   @Column({type: "timestamp with time zone"})
   dateTime: Date | string;
 
-  @OneToMany(() => Records, (record) => record.user)
+  @OneToMany(() => Records, (record) => record.user, {cascade: true})
   records: Records[]
 }
