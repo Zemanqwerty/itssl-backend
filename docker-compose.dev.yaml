@@ -5,6 +5,9 @@ services:
     image: zemanqwerty/itssl:main-service
     ports:
       - 5010:5010
+    volumes:
+      - /etc/letsencrypt/live/yourdomain.com/fullchain.pem:/path/in/container/fullchain.pem
+      - /etc/letsencrypt/live/yourdomain.com/privkey.pem:/path/in/container/privkey.pem
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -16,8 +19,6 @@ services:
       BASE_ADMIN_EMAIL: admin@gmail.com
       BASE_ADMIN_PASSWORD: qgDcsQhsLa
     restart: unless-stopped
-    depends_on:
-      - smtp-service
 
   db:
     image:  postgres:11

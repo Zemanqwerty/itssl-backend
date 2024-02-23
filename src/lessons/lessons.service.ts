@@ -38,7 +38,7 @@ export class LessonsService {
             lessonData.dateTime = new Date(lessonData.dateTime);
         }
 
-        lessonData.dateTime.setUTCHours(lessonData.dateTime.getUTCHours() + 8);
+        lessonData.dateTime.setUTCHours(lessonData.dateTime.getUTCHours());
         
         const lesson = this.lessonsRepository.create(lessonData);
         await this.lessonsRepository.save(lesson);
