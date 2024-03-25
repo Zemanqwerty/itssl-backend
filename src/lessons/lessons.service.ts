@@ -27,7 +27,6 @@ export class LessonsService {
     ) {};
 
     async createLesson(lessonData: CreateLessonDto, userData: PayloadDto) {
-        console.log(lessonData)
         const customer = await this.usersService.getUserById(userData.public_userId);
 
         if (customer.role === Role.Client) {
@@ -44,6 +43,27 @@ export class LessonsService {
         await this.lessonsRepository.save(lesson);
 
         return new ResponseLessonsDto({title: lesson.title, dateTime: lesson.dateTime});
+    }
+
+    async updateLesson(lessonData: CreateLessonDto, lessonId: number, userData: PayloadDto) {
+        const customer = await this.usersService.getUserById(userData.public_userId);
+
+        if (customer.role === Role.Client) {
+            throw new HttpException('permission denied', HttpStatus.FORBIDDEN);
+        }
+
+        const lesson = await this.lessonsRepository.findOne({
+            where: {
+                id: lessonId,
+            }
+        });
+
+        lesson.type = lessonData.type;
+        lesson.title = lessonData.title;
+        lesson.isOnline = lessonData.isOnline;
+        lesson.dateTime = lessonData.dateTime;
+
+        return await this.lessonsRepository.save(lesson);
     }
 
     async getLessons() {

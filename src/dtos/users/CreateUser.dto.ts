@@ -7,5 +7,5 @@ export class CreateUserDto {
     phoneNumber: string;
     email: string;
     password: string;
-    course: string;
+    courses: string[];
 }

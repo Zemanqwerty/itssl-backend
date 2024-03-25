@@ -1,3 +1,5 @@
+import { UsersCourse } from "src/users-course/users-course.entity";
+
 export class ResponseClients {
     id: number;
     childrenFIO: string;
@@ -7,7 +9,7 @@ export class ResponseClients {
     conclusionDate: string;
     phoneNumber: string;
     email: string;
-    course: string;
+    usersCourse: UsersCourse[];
 
     constructor (model: {id: number,
                         childrenFIO: string,
@@ -17,7 +19,7 @@ export class ResponseClients {
                         conclusionDate: string,
                         phoneNumber: string,
                         email: string,
-                        course: string})
+                        usersCourse: UsersCourse[]})
     {
         this.id = model.id;
         this.childrenFIO = model.childrenFIO;
@@ -27,6 +29,6 @@ export class ResponseClients {
         this.conclusionDate = model.conclusionDate;
         this.phoneNumber = model.phoneNumber;
         this.email = model.email;
-        this.course = model.course;
+        this.usersCourse = model.usersCourse;
     }
 }

@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from "src/roles/roles.enum";
 import { PayloadDto } from "src/dtos/auth/PayloadDto.dto";
 import { ResponseClients } from "src/dtos/users/ResponseClient.dto";
+import { UsersCourseService } from "src/users-course/users-course.service";
 
 
 
@@ -17,6 +18,7 @@ export class UsersService {
     constructor(
         @InjectRepository(Users)
         private usersRepository: Repository<Users>,
+        private usersCourseService: UsersCourseService,
     ) {};
 
     async createNewUser(userData: CreateUserDto, customerData: PayloadDto) {
@@ -37,6 +39,10 @@ export class UsersService {
 
         const newUser = this.usersRepository.create(userData);
         await this.usersRepository.save(newUser);
+        
+        userData.courses.map(async (course) => {
+            await this.usersCourseService.create(course, newUser);
+        })
 
         return new ResponseUser({childrenFIO: newUser.childrenFIO, email: newUser.email});
     }
@@ -65,9 +71,12 @@ export class UsersService {
         user.phoneNumber = userData.phoneNumber;
         user.email = userData.email;
         user.password = userData.password;
-        user.course = userData.course;
 
         await this.usersRepository.save(user);
+
+        userData.courses.map(async (course) => {
+            await this.usersCourseService.update(course, user);
+        })
 
         return new ResponseUser({childrenFIO: user.childrenFIO, email: user.email});
     }
@@ -80,6 +89,9 @@ export class UsersService {
         }
 
         const clientsList = await this.usersRepository.find({
+            relations: {
+                usersCourse: true
+            },
             where: {
                 role: Role.Client
             }
@@ -109,6 +121,7 @@ export class UsersService {
         }})
 
         if (adminCondidate) {
+            console.log('BASE ADMIN ALREADY CREATED');
             return
         }
 
@@ -123,7 +136,6 @@ export class UsersService {
             phoneNumber: '',
             email: process.env.BASE_ADMIN_EMAIL,
             password: adminHashedPassword,
-            course: '',
             role: Role.Admin
         });
 

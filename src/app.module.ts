@@ -7,6 +7,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { RecordsModule } from './records/records.module';
 import { RolesModule } from './roles/roles.module';
 import { TokensModule } from './tokens/tokens.module';
+import { UsersCourseModule } from './users-course/users-course.module';
 
 @Module({
   imports: [
@@ -36,6 +37,8 @@ import { TokensModule } from './tokens/tokens.module';
     RolesModule,
 
     TokensModule,
+
+    UsersCourseModule,
   ],
 })
 export class AppModule {}

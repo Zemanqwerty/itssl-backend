@@ -1,6 +1,7 @@
 import { Lessons } from 'src/lessons/lessons.entity';
 import { Records } from 'src/records/records.entity';
 import { Role } from 'src/roles/roles.enum';
+import { UsersCourse } from 'src/users-course/users-course.entity';
 import { ManyToMany, JoinTable, Entity, Column, PrimaryGeneratedColumn, Generated, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
@@ -37,9 +38,6 @@ export class Users {
   @Column()
   password: string;
 
-  @Column()
-  course: string;
-
   @Column({
     default: Role.Client
   })
@@ -47,4 +45,7 @@ export class Users {
 
   @OneToMany(() => Records, (record) => record.user, {cascade: true})
   records: Records[]
+
+  @OneToMany(() => UsersCourse, (usersLessons) => usersLessons.user, {cascade: true})
+  usersCourse: UsersCourse[]
 }
