@@ -9,7 +9,7 @@ export class ResponseClients {
     conclusionDate: string;
     phoneNumber: string;
     email: string;
-    usersCourse: UsersCourse[];
+    usersCourse: string[];
 
     constructor (model: {id: number,
                         childrenFIO: string,
@@ -29,6 +29,6 @@ export class ResponseClients {
         this.conclusionDate = model.conclusionDate;
         this.phoneNumber = model.phoneNumber;
         this.email = model.email;
-        this.usersCourse = model.usersCourse;
+        this.usersCourse = model.usersCourse.map((course) => {return course.courseTitle});
     }
 }

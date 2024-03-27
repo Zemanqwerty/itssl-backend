@@ -74,9 +74,11 @@ export class UsersService {
 
         await this.usersRepository.save(user);
 
-        userData.courses.map(async (course) => {
-            await this.usersCourseService.update(course, user);
-        })
+        // userData.courses.map(async (course) => {
+        //     await this.usersCourseService.update(course, user);
+        // })
+
+        await this.usersCourseService.update(userData.courses, user);
 
         return new ResponseUser({childrenFIO: user.childrenFIO, email: user.email});
     }
