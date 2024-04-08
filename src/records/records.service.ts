@@ -71,9 +71,11 @@ export class RecordsService {
 
         const dateTimes = usersRecords.map(record => new Date(record.lesson.dateTime));
 
-        if (!canAddDateToList(dateTimes, new Date(lesson.dateTime))) {
-            throw new HttpException('Вы не можете записаться более чем на два занятия в неделю. Вы можете отменить другое занятие либо связаться с менеджером для оформления дополнительного занятия (Дополнительное занятие будет стоить 500 рублей)', HttpStatus.BAD_REQUEST);
-        }
+
+        // ОГРАНИЧЕНИЕ НА КОЛ-ВО ЗАПИСЕЙ В НЕДЕЛЮ
+        // if (!canAddDateToList(dateTimes, new Date(lesson.dateTime))) {
+        //     throw new HttpException('Вы не можете записаться более чем на два занятия в неделю. Вы можете отменить другое занятие либо связаться с менеджером для оформления дополнительного занятия (Дополнительное занятие будет стоить 500 рублей)', HttpStatus.BAD_REQUEST);
+        // }
 
         const record = this.recordsRepository.create({user: user, lesson: lesson});
         await this.recordsRepository.save(record);
